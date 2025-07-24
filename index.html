@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Laranja Explosiva</title>
+  <style>
+    body {
+      margin: 0;
+      background: #fffbe6;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      overflow: hidden;
+      position: relative;
+      text-align: center;
+    }
+
+    h1 {
+      font-family: Arial, sans-serif;
+      color: #ff8000;
+      font-size: 28px;
+      margin-bottom: 20px;
+    }
+
+    #laranja {
+      width: 200px;
+      height: auto;
+      cursor: pointer;
+      z-index: 10;
+      transition: transform 0.2s ease;
+    }
+
+    .emoji {
+      position: absolute;
+      font-size: 32px;
+      animation: explodir 1s ease-out forwards;
+      pointer-events: none;
+    }
+
+    @keyframes explodir {
+      0% {
+        transform: translate(0, 0) scale(1);
+        opacity: 1;
+      }
+      100% {
+        transform: translate(var(--x), var(--y)) scale(0.6);
+        opacity: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Clique na laranja 🍊</h1>
+  <img src="https://obahortifruti.vtexassets.com/arquivos/ids/5593084/Laranja-Bahia-Importada.png?v=638384110178900000" alt="Laranja" id="laranja">
+
+  <script>
+    const laranja = document.getElementById('laranja');
+
+    laranja.addEventListener('click', () => {
+      for (let i = 0; i < 100; i++) {
+        const emoji = document.createElement('div');
+        emoji.classList.add('emoji');
+        emoji.textContent = '🍊';
+
+        const rect = laranja.getBoundingClientRect();
+        emoji.style.left = `${rect.left + rect.width / 2}px`;
+        emoji.style.top = `${rect.top + rect.height / 2}px`;
+
+        const angle = Math.random() * 2 * Math.PI;
+        const distance = Math.random() * 200 + 50;
+        const x = Math.cos(angle) * distance;
+        const y = Math.sin(angle) * distance;
+
+        emoji.style.setProperty('--x', `${x}px`);
+        emoji.style.setProperty('--y', `${y}px`);
+
+        document.body.appendChild(emoji);
+        setTimeout(() => emoji.remove(), 1000);
+      }
+
+      laranja.style.transform = 'scale(0.9)';
+      setTimeout(() => {
+        laranja.style.transform = 'scale(1)';
+      }, 150);
+    });
+  </script>
+
+</body>
+</html>
