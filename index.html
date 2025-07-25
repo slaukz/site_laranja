@@ -2,31 +2,42 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Laranja Explosiva</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Laranja com Recompensas</title>
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
       background: #fffbe6;
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    #main {
+      flex: 1;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      height: 100vh;
-      overflow: hidden;
       position: relative;
-      text-align: center;
+      padding: 20px;
     }
 
     h1 {
-      font-family: Arial, sans-serif;
       color: #ff8000;
-      font-size: 28px;
+      font-size: 24px;
       margin-bottom: 20px;
+      text-align: center;
     }
 
     #laranja {
-      width: 200px;
-      height: auto;
+      width: 160px;
       cursor: pointer;
       z-index: 10;
       transition: transform 0.2s ease;
@@ -34,7 +45,7 @@
 
     .emoji {
       position: absolute;
-      font-size: 32px;
+      font-size: 28px;
       animation: explodir 1s ease-out forwards;
       pointer-events: none;
     }
@@ -49,18 +60,208 @@
         opacity: 0;
       }
     }
+
+    #pontos {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: #ff8000;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 16px;
+      box-shadow: 0 3px 5px rgba(0,0,0,0.2);
+      z-index: 100;
+    }
+
+    #painel {
+      width: 100%;
+      max-height: 250px;
+      background: #fff3d1;
+      padding: 12px;
+      border-top: 4px solid #ffa726;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      overflow-y: auto;
+    }
+
+    #painel h2 {
+      margin: 0 0 10px 0;
+      font-size: 18px;
+      color: #ff8000;
+      text-align: center;
+    }
+
+    .recompensa-box {
+      background: white;
+      border: 2px dashed #ffa726;
+      padding: 8px;
+      border-radius: 10px;
+      text-align: center;
+      font-size: 14px;
+    }
+
+    .recompensa-box.locked {
+      opacity: 0.5;
+    }
+
+    .resgatar-btn {
+      margin-top: 8px;
+      padding: 5px 10px;
+      background: #ff8000;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      display: none;
+    }
+
+    .vale {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      border: 3px dashed #ffa726;
+      padding: 25px;
+      border-radius: 16px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.2);
+      z-index: 999;
+      display: none;
+      text-align: center;
+      animation: aparecer 0.3s ease;
+      width: 80%;
+      max-width: 300px;
+    }
+
+    .vale h2 {
+      margin-bottom: 10px;
+      color: #ff8000;
+    }
+
+    .vale button {
+      margin-top: 10px;
+      background: #ff8000;
+      color: white;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    @keyframes aparecer {
+      from { transform: translate(-50%, -50%) scale(0.8); opacity: 0; }
+      to { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    }
+
+    /* Tablet/Desktop layout */
+    @media (min-width: 768px) {
+      body {
+        flex-direction: row;
+      }
+
+      #main {
+        flex: 1;
+      }
+
+      #painel {
+        width: 300px;
+        max-height: none;
+        border-top: none;
+        border-left: 4px solid #ffa726;
+        overflow-y: auto;
+      }
+
+      #painel h2 {
+        text-align: left;
+      }
+    }
   </style>
 </head>
 <body>
 
-  <h1>Clique na laranja 🍊</h1>
-  <img src="https://obahortifruti.vtexassets.com/arquivos/ids/5593084/Laranja-Bahia-Importada.png?v=638384110178900000" alt="Laranja" id="laranja">
+  <div id="main">
+    <h1>Clique na laranja 🍊</h1>
+    <div id="pontos">Pontos: 0</div>
+    <img src="https://obahortifruti.vtexassets.com/arquivos/ids/5593084/Laranja-Bahia-Importada.png?v=638384110178900000" alt="Laranja" id="laranja">
+  </div>
+
+  <div id="painel">
+    <h2>🎁 Recompensas</h2>
+    <div id="lista-recompensas"></div>
+  </div>
+
+  <div class="vale" id="valePresente">
+    <h2 id="valeTitulo">🎉 Recompensa!</h2>
+    <p id="valeDescricao"></p>
+    <button onclick="fecharVale()">Fechar</button>
+  </div>
 
   <script>
     const laranja = document.getElementById('laranja');
+    const contador = document.getElementById('pontos');
+    const listaRecompensas = document.getElementById('lista-recompensas');
+    const vale = document.getElementById('valePresente');
+    const valeTitulo = document.getElementById('valeTitulo');
+    const valeDescricao = document.getElementById('valeDescricao');
+
+    let pontos = 0;
+    const recompensas = [
+      { pontos: 10, nome: "Caixinha de suco 🧃", descricao: "Você ganhou uma caixinha de suco deliciosa!" },
+      { pontos: 25, nome: "Pé de laranja 🌳", descricao: "Um lindo pé de laranja nasceu para você!" },
+      { pontos: 50, nome: "Cesta de frutas 🍇🍊🍎", descricao: "Você encheu uma cesta com frutas incríveis!" },
+      { pontos: 100, nome: "Plantação mágica ✨🍊", descricao: "Você desbloqueou a plantação mágica!" },
+      { pontos: 150, nome: "Coroinha da Laranja 👑", descricao: "Agora você é o Rei/Rainha da Laranja!" },
+    ];
+
+    const desbloqueadas = new Set();
+
+    function criarPainel() {
+      recompensas.forEach((r, i) => {
+        const box = document.createElement('div');
+        box.className = 'recompensa-box locked';
+        box.id = `recompensa-${i}`;
+        box.innerHTML = `
+          <h3>${r.nome}</h3>
+          <p>Necessário: ${r.pontos} 🍊</p>
+          <button class="resgatar-btn" onclick="mostrarVale('${r.nome}', '${r.descricao}', ${r.pontos})">Resgatar</button>
+        `;
+        listaRecompensas.appendChild(box);
+      });
+    }
+
+    function atualizarPainel() {
+      recompensas.forEach((r, i) => {
+        const box = document.getElementById(`recompensa-${i}`);
+        if (pontos >= r.pontos) {
+          box.classList.remove('locked');
+          const btn = box.querySelector('button');
+          if (!desbloqueadas.has(r.pontos)) {
+            btn.style.display = 'inline-block';
+          }
+        }
+      });
+    }
+
+    function mostrarVale(titulo, descricao, valor) {
+      valeTitulo.textContent = `🎉 ${titulo}`;
+      valeDescricao.textContent = descricao;
+      vale.style.display = 'block';
+      desbloqueadas.add(valor);
+      atualizarPainel();
+    }
+
+    function fecharVale() {
+      vale.style.display = 'none';
+    }
 
     laranja.addEventListener('click', () => {
-      for (let i = 0; i < 100; i++) {
+      pontos++;
+      contador.textContent = `Pontos: ${pontos}`;
+      atualizarPainel();
+
+      for (let i = 0; i < 30; i++) {
         const emoji = document.createElement('div');
         emoji.classList.add('emoji');
         emoji.textContent = '🍊';
@@ -70,7 +271,7 @@
         emoji.style.top = `${rect.top + rect.height / 2}px`;
 
         const angle = Math.random() * 2 * Math.PI;
-        const distance = Math.random() * 200 + 50;
+        const distance = Math.random() * 150 + 30;
         const x = Math.cos(angle) * distance;
         const y = Math.sin(angle) * distance;
 
@@ -86,7 +287,8 @@
         laranja.style.transform = 'scale(1)';
       }, 150);
     });
-  </script>
 
+    criarPainel();
+  </script>
 </body>
 </html>
