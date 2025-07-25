@@ -206,7 +206,7 @@
     }
 
     laranja.addEventListener('click', (e) => {
-  const ganho = Math.floor(Math.random() * 10) + 1;
+  const ganho = Math.floor(Math.random() * 5) + 1;
   pontos += ganho;
   contador.textContent = `Laranjas coletadas: ${pontos}`;
   atualizarPainel();
@@ -223,8 +223,8 @@
   ganhoLabel.style.top = `${y - 30}px`;
   ganhoLabel.style.fontSize = '20px';
   ganhoLabel.style.fontWeight = 'bold';
-  ganhoLabel.style.color = '#ff7f00';
-  ganhoLabel.style.animation = 'ganhoAnim 1s ease-out';
+  ganhoLabel.style.color = '#000000';
+  ganhoLabel.style.animation = 'ganhoAnim 0s ease-out';
   ganhoLabel.style.pointerEvents = 'none';
   document.body.appendChild(ganhoLabel);
   setTimeout(() => ganhoLabel.remove(), 1000);
