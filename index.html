@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Laranja com Recompensas</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Coletador de Laranjas 🍊</title>
   <style>
     * {
       box-sizing: border-box;
@@ -11,250 +11,177 @@
 
     body {
       margin: 0;
+      font-family: 'Arial', sans-serif;
       background: #fffbe6;
-      font-family: Arial, sans-serif;
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-      overflow: hidden;
-    }
-
-    #main {
-      flex: 1;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      position: relative;
-      padding: 20px;
+      padding: 10px;
+      min-height: 100vh;
     }
 
     h1 {
       color: #ff8000;
-      font-size: 24px;
-      margin-bottom: 20px;
       text-align: center;
+      font-size: 22px;
+      margin-top: 10px;
     }
 
-    #laranja {
-      width: 160px;
-      cursor: pointer;
-      z-index: 10;
-      transition: transform 0.2s ease;
-    }
-
-    .emoji {
-      position: absolute;
-      font-size: 28px;
-      animation: explodir 1s ease-out forwards;
-      pointer-events: none;
-    }
-
-    @keyframes explodir {
-      0% {
-        transform: translate(0, 0) scale(1);
-        opacity: 1;
-      }
-      100% {
-        transform: translate(var(--x), var(--y)) scale(0.6);
-        opacity: 0;
-      }
-    }
-
-    #pontos {
-      position: absolute;
-      top: 10px;
-      right: 10px;
+    #contador {
       background: #ff8000;
       color: white;
       padding: 8px 16px;
       border-radius: 20px;
       font-size: 16px;
-      box-shadow: 0 3px 5px rgba(0,0,0,0.2);
-      z-index: 100;
+      margin: 10px 0;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    #laranja {
+      width: 180px;
+      height: auto;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    #laranja:active {
+      transform: scale(0.95);
     }
 
     #painel {
-  width: 100%;
-  max-height: 40vh;
-  min-height: 180px;
-  background: #fff3d1;
-  padding: 12px;
-  border-top: 4px solid #ffa726;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  overflow-y: auto;
-  }
-
-    #painel h2 {
-      margin: 0 0 10px 0;
-      font-size: 18px;
-      color: #ff8000;
-      text-align: center;
+      margin-top: 20px;
+      width: 100%;
+      max-width: 400px;
+      max-height: 50vh;
+      background: #fff3d1;
+      padding: 15px;
+      border: 3px solid #ffa726;
+      border-radius: 10px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
     }
 
     .recompensa-box {
       background: white;
       border: 2px dashed #ffa726;
-      padding: 8px;
+      padding: 12px;
       border-radius: 10px;
       text-align: center;
+      font-size: 15px;
+      position: relative;
+    }
+
+    .recompensa-box.bloqueada {
+      opacity: 0.4;
+    }
+
+    .btn-resgatar {
+      margin-top: 10px;
+      padding: 6px 12px;
       font-size: 14px;
-    }
-
-    .recompensa-box.locked {
-      opacity: 0.5;
-    }
-
-    .resgatar-btn {
-      margin-top: 8px;
-      padding: 5px 10px;
+      border: none;
       background: #ff8000;
       color: white;
-      border: none;
       border-radius: 6px;
       cursor: pointer;
-      display: none;
     }
 
-    .vale {
+    #popup {
       position: fixed;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      background: white;
+      background: #fffbe6;
       border: 3px dashed #ffa726;
-      padding: 25px;
-      border-radius: 16px;
-      box-shadow: 0 0 20px rgba(0,0,0,0.2);
-      z-index: 999;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
       display: none;
+      z-index: 999;
       text-align: center;
-      animation: aparecer 0.3s ease;
-      width: 80%;
-      max-width: 300px;
     }
 
-    .vale h2 {
-      margin-bottom: 10px;
-      color: #ff8000;
-    }
-
-    .vale button {
-      margin-top: 10px;
+    #popup button {
+      margin-top: 15px;
+      padding: 8px 16px;
       background: #ff8000;
       color: white;
       border: none;
-      padding: 8px 14px;
       border-radius: 8px;
       cursor: pointer;
     }
 
-    @keyframes aparecer {
-      from { transform: translate(-50%, -50%) scale(0.8); opacity: 0; }
-      to { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    .emoji {
+      position: absolute;
+      font-size: 24px;
+      animation: explodir 1s ease-out forwards;
+      pointer-events: none;
     }
 
-    /* Tablet/Desktop layout */
-    @media (min-width: 768px) {
-      body {
-        flex-direction: row;
-      }
-
-      #main {
-        flex: 1;
-      }
-
-      #painel {
-        width: 300px;
-        max-height: none;
-        border-top: none;
-        border-left: 4px solid #ffa726;
-        overflow-y: auto;
-      }
-
-      #painel h2 {
-        text-align: left;
-      }
+    @keyframes explodir {
+      0% { transform: translate(0, 0) scale(1); opacity: 1; }
+      100% { transform: translate(var(--x), var(--y)) scale(0.6); opacity: 0; }
     }
   </style>
 </head>
 <body>
 
-  <div id="main">
-    <h1>Clique na laranja 🍊</h1>
-    <div id="pontos">Pontos: 0</div>
-    <img src="https://obahortifruti.vtexassets.com/arquivos/ids/5593084/Laranja-Bahia-Importada.png?v=638384110178900000" alt="Laranja" id="laranja">
-  </div>
+  <h1>Clique na laranja 🍊</h1>
+  <div id="contador">Pontos: 0</div>
+  <img src="https://obahortifruti.vtexassets.com/arquivos/ids/5593084/Laranja-Bahia-Importada.png?v=638384110178900000" alt="Laranja" id="laranja">
 
-  <div id="painel">
-    <h2>🎁 Recompensas</h2>
-    <div id="lista-recompensas"></div>
-  </div>
+  <div id="painel"></div>
 
-  <div class="vale" id="valePresente">
-    <h2 id="valeTitulo">🎉 Recompensa!</h2>
-    <p id="valeDescricao"></p>
-    <button onclick="fecharVale()">Fechar</button>
+  <div id="popup">
+    <div id="mensagem-popup"></div>
+    <button onclick="fecharPopup()">Fechar</button>
   </div>
 
   <script>
     const laranja = document.getElementById('laranja');
-    const contador = document.getElementById('pontos');
-    const listaRecompensas = document.getElementById('lista-recompensas');
-    const vale = document.getElementById('valePresente');
-    const valeTitulo = document.getElementById('valeTitulo');
-    const valeDescricao = document.getElementById('valeDescricao');
-
+    const contador = document.getElementById('contador');
+    const painel = document.getElementById('painel');
+    const popup = document.getElementById('popup');
+    const mensagemPopup = document.getElementById('mensagem-popup');
     let pontos = 0;
+
     const recompensas = [
-      { pontos: 10, nome: "Caixinha de suco 🧃", descricao: "Você ganhou uma caixinha de suco deliciosa!" },
-      { pontos: 25, nome: "Pé de laranja 🌳", descricao: "Um lindo pé de laranja nasceu para você!" },
-      { pontos: 50, nome: "Cesta de frutas 🍇🍊🍎", descricao: "Você encheu uma cesta com frutas incríveis!" },
-      { pontos: 100, nome: "Plantação mágica ✨🍊", descricao: "Você desbloqueou a plantação mágica!" },
-      { pontos: 150, nome: "Coroinha da Laranja 👑", descricao: "Agora você é o Rei/Rainha da Laranja!" },
+      { pontos: 5, texto: 'Mini suco 🍹' },
+      { pontos: 10, texto: 'Caixinha de suco 🧃' },
+      { pontos: 20, texto: 'Pé de laranja 🌳' },
+      { pontos: 30, texto: 'Cesta de frutas 🍇🍊🍎' },
+      { pontos: 50, texto: 'Coroa cítrica 👑🍊' },
+      { pontos: 75, texto: 'Vale da Laranja Dourada ✨🍊' },
+      { pontos: 100, texto: 'Plantação Mágica 🍊🌈✨' }
     ];
 
-    const desbloqueadas = new Set();
-
-    function criarPainel() {
+    function atualizarPainel() {
+      painel.innerHTML = '';
       recompensas.forEach((r, i) => {
         const box = document.createElement('div');
-        box.className = 'recompensa-box locked';
-        box.id = `recompensa-${i}`;
-        box.innerHTML = `
-          <h3>${r.nome}</h3>
-          <p>Necessário: ${r.pontos} 🍊</p>
-          <button class="resgatar-btn" onclick="mostrarVale('${r.nome}', '${r.descricao}', ${r.pontos})">Resgatar</button>
-        `;
-        listaRecompensas.appendChild(box);
-      });
-    }
-
-    function atualizarPainel() {
-      recompensas.forEach((r, i) => {
-        const box = document.getElementById(`recompensa-${i}`);
+        box.classList.add('recompensa-box');
+        if (pontos < r.pontos) box.classList.add('bloqueada');
+        box.innerHTML = `<strong>${r.texto}</strong><br><small>Requer ${r.pontos} pontos</small>`;
         if (pontos >= r.pontos) {
-          box.classList.remove('locked');
-          const btn = box.querySelector('button');
-          if (!desbloqueadas.has(r.pontos)) {
-            btn.style.display = 'inline-block';
-          }
+          const botao = document.createElement('button');
+          botao.classList.add('btn-resgatar');
+          botao.textContent = 'Resgatar 🎁';
+          botao.onclick = () => mostrarPopup(r.texto);
+          box.appendChild(botao);
         }
+        painel.appendChild(box);
       });
     }
 
-    function mostrarVale(titulo, descricao, valor) {
-      valeTitulo.textContent = `🎉 ${titulo}`;
-      valeDescricao.textContent = descricao;
-      vale.style.display = 'block';
-      desbloqueadas.add(valor);
-      atualizarPainel();
+    function mostrarPopup(msg) {
+      mensagemPopup.textContent = `Você resgatou: ${msg}`;
+      popup.style.display = 'block';
     }
 
-    function fecharVale() {
-      vale.style.display = 'none';
+    function fecharPopup() {
+      popup.style.display = 'none';
     }
 
     laranja.addEventListener('click', () => {
@@ -262,34 +189,28 @@
       contador.textContent = `Pontos: ${pontos}`;
       atualizarPainel();
 
-      for (let i = 0; i < 30; i++) {
+      // animação de explosão
+      for (let i = 0; i < 20; i++) {
         const emoji = document.createElement('div');
         emoji.classList.add('emoji');
         emoji.textContent = '🍊';
 
-        const rect = laranja.getBoundingClientRect();
-        emoji.style.left = `${rect.left + rect.width / 2}px`;
-        emoji.style.top = `${rect.top + rect.height / 2}px`;
-
         const angle = Math.random() * 2 * Math.PI;
-        const distance = Math.random() * 150 + 30;
+        const distance = Math.random() * 100 + 30;
         const x = Math.cos(angle) * distance;
         const y = Math.sin(angle) * distance;
 
+        emoji.style.left = `${laranja.offsetLeft + laranja.offsetWidth / 2}px`;
+        emoji.style.top = `${laranja.offsetTop + laranja.offsetHeight / 2}px`;
         emoji.style.setProperty('--x', `${x}px`);
         emoji.style.setProperty('--y', `${y}px`);
 
         document.body.appendChild(emoji);
         setTimeout(() => emoji.remove(), 1000);
       }
-
-      laranja.style.transform = 'scale(0.9)';
-      setTimeout(() => {
-        laranja.style.transform = 'scale(1)';
-      }, 150);
     });
 
-    criarPainel();
+    atualizarPainel();
   </script>
 </body>
 </html>
