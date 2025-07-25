@@ -44,6 +44,12 @@
       transition: transform 0.2s;
     }
 
+    #laranja {
+    outline: none;
+    -webkit-tap-highlight-color: transparent; /* Remove o brilho azul em Android */
+    user-select: none; /* Impede de selecionar a imagem */
+    }
+
     #laranja:active {
       transform: scale(0.95);
     }
@@ -101,6 +107,13 @@
       display: none;
       z-index: 999;
       text-align: center;
+      max-width: 300px;
+    }
+
+    #popup h2 {
+      color: #ff8000;
+      font-size: 20px;
+      margin-bottom: 10px;
     }
 
     #popup button {
@@ -124,17 +137,19 @@
       0% { transform: translate(0, 0) scale(1); opacity: 1; }
       100% { transform: translate(var(--x), var(--y)) scale(0.6); opacity: 0; }
     }
+    
   </style>
 </head>
 <body>
 
   <h1>Clique na laranja 🍊</h1>
-  <div id="contador">Pontos: 0</div>
+  <div id="contador">Laranjas coletadas: 0</div>
   <img src="https://obahortifruti.vtexassets.com/arquivos/ids/5593084/Laranja-Bahia-Importada.png?v=638384110178900000" alt="Laranja" id="laranja">
 
   <div id="painel"></div>
 
   <div id="popup">
+    <h2 id="titulo-popup"></h2>
     <div id="mensagem-popup"></div>
     <button onclick="fecharPopup()">Fechar</button>
   </div>
@@ -145,36 +160,44 @@
     const painel = document.getElementById('painel');
     const popup = document.getElementById('popup');
     const mensagemPopup = document.getElementById('mensagem-popup');
+    const tituloPopup = document.getElementById('titulo-popup');
     let pontos = 0;
 
     const recompensas = [
-      { pontos: 10, nome: "Caixinha de suco 🧃", descricao: "Você ganhou uma caixinha de suco deliciosa!" },
-      { pontos: 25, nome: "Pé de laranja 🌳", descricao: "Um lindo pé de laranja nasceu para você!" },
-      { pontos: 50, nome: "Cesta de frutas 🍇🍊🍎", descricao: "Você encheu uma cesta com frutas incríveis!" },
-      { pontos: 100, nome: "Plantação mágica ✨🍊", descricao: "Você desbloqueou a plantação mágica!" },
-      { pontos: 150, nome: "Coroinha da Laranja 👑", descricao: "Agora você é o Rei/Rainha da Laranja!" },
+      { pontos: 500, nome: "Recompensa 1 💋", descricao: "Você ganhou um vale infinito de beijinhos! Para ativar envie o código #BEIJINHOS10 no meu whatsapp" },
+      { pontos: 750, nome: "Recompensa 2 🤗", descricao: "Mais uma recompensa! Você ganhou um vale infinito de abraços, para usar a qualquer hora e lugar, basta enviar #ABRAÇOSINF para que seja ativado" },
+      { pontos: 900, nome: "Recompensa 3 💤", descricao: "Você acaba de liberar o vale noturno, ele é infinito e pode ser usado quando quiser dormir juntinhos, para ativar é bem simples, ative o vale usando o código #HAPPYNIGHT" },
+      { pontos: 1200, nome: "Recompensa 4 💕", descricao: "Antepenúltima recompensa, esse é o vale chamegos, não possui limite de usos (ainda bem), pode ser usado quando quiser ficar de chamegos, agarradinhos, só existindo, ative com o código #CHAMEGUINHOS" },
+      { pontos: 1500, nome: "Recompensa 5 🦷", descricao: "Agora a penúltima recompensa, este é um vale para tirar o meu aparelho com a língua, pode ser usado quando quiser! Quando quiser fazer, utilize #DENTIN" },
+      { pontos: 1800, nome: "Recompensa Especial 🔥", descricao: "Sendo esta a última recompensa, e a mais difícil também, este é um vale foguinho, também sem limite de usos, quando ativado, as ações de Jetaime, Lumbita e Milujite serão liberadas. Quando estiver com vontade, use #FOGUINHO" },
     ];
 
     function atualizarPainel() {
-      painel.innerHTML = '';
-      recompensas.forEach((r, i) => {
-        const box = document.createElement('div');
-        box.classList.add('recompensa-box');
-        if (pontos < r.pontos) box.classList.add('bloqueada');
-        box.innerHTML = `<strong>${r.texto}</strong><br><small>Requer ${r.pontos} pontos</small>`;
-        if (pontos >= r.pontos) {
-          const botao = document.createElement('button');
-          botao.classList.add('btn-resgatar');
-          botao.textContent = 'Resgatar 🎁';
-          botao.onclick = () => mostrarPopup(r.texto);
-          box.appendChild(botao);
-        }
-        painel.appendChild(box);
-      });
+  painel.innerHTML = '';
+  recompensas.forEach((r) => {
+    const box = document.createElement('div');
+    box.classList.add('recompensa-box');
+    if (pontos < r.pontos) box.classList.add('bloqueada');
+
+    const titulo = document.createElement('div');
+    titulo.innerHTML = `<strong>${r.nome}</strong><br><small>Necessário: ${r.pontos} 🍊</small>`;
+    box.appendChild(titulo);
+
+    if (pontos >= r.pontos) {
+      const botao = document.createElement('button');
+      botao.classList.add('btn-resgatar');
+      botao.textContent = 'Resgatar';
+      botao.onclick = () => mostrarPopup(r.nome, r.descricao);
+      box.appendChild(botao); // Agora o botão aparece embaixo
     }
 
-    function mostrarPopup(msg) {
-      mensagemPopup.textContent = `Você resgatou: ${msg}`;
+    painel.appendChild(box);
+  });
+}
+
+    function mostrarPopup(titulo, descricao) {
+      tituloPopup.innerHTML = titulo;
+      mensagemPopup.textContent = descricao;
       popup.style.display = 'block';
     }
 
@@ -182,31 +205,51 @@
       popup.style.display = 'none';
     }
 
-    laranja.addEventListener('click', () => {
-      pontos++;
-      contador.textContent = `Pontos: ${pontos}`;
-      atualizarPainel();
+    laranja.addEventListener('click', (e) => {
+  const ganho = Math.floor(Math.random() * 10) + 1;
+  pontos += ganho;
+  contador.textContent = `Laranjas coletadas: ${pontos}`;
+  atualizarPainel();
 
-      // animação de explosão
-      for (let i = 0; i < 20; i++) {
-        const emoji = document.createElement('div');
-        emoji.classList.add('emoji');
-        emoji.textContent = '🍊';
+  // Coordenadas do clique/touch
+  const x = e.clientX || (e.touches && e.touches[0].clientX);
+  const y = e.clientY || (e.touches && e.touches[0].clientY);
 
-        const angle = Math.random() * 2 * Math.PI;
-        const distance = Math.random() * 100 + 30;
-        const x = Math.cos(angle) * distance;
-        const y = Math.sin(angle) * distance;
+  // Mostrar número ganho no clique
+  const ganhoLabel = document.createElement('div');
+  ganhoLabel.textContent = `+${ganho} 🍊`;
+  ganhoLabel.style.position = 'absolute';
+  ganhoLabel.style.left = `${x - 20}px`;
+  ganhoLabel.style.top = `${y - 30}px`;
+  ganhoLabel.style.fontSize = '20px';
+  ganhoLabel.style.fontWeight = 'bold';
+  ganhoLabel.style.color = '#ff7f00';
+  ganhoLabel.style.animation = 'ganhoAnim 1s ease-out';
+  ganhoLabel.style.pointerEvents = 'none';
+  document.body.appendChild(ganhoLabel);
+  setTimeout(() => ganhoLabel.remove(), 1000);
 
-        emoji.style.left = `${laranja.offsetLeft + laranja.offsetWidth / 2}px`;
-        emoji.style.top = `${laranja.offsetTop + laranja.offsetHeight / 2}px`;
-        emoji.style.setProperty('--x', `${x}px`);
-        emoji.style.setProperty('--y', `${y}px`);
+  // Explosão de emojis conforme quantidade
+  for (let i = 0; i < ganho; i++) {
+    const emoji = document.createElement('div');
+    emoji.classList.add('emoji');
+    emoji.textContent = '🍊';
 
-        document.body.appendChild(emoji);
-        setTimeout(() => emoji.remove(), 1000);
-      }
-    });
+    const angle = Math.random() * 2 * Math.PI;
+    const distance = Math.random() * 100 + 30;
+    const offsetX = Math.cos(angle) * distance;
+    const offsetY = Math.sin(angle) * distance;
+
+    emoji.style.left = `${laranja.offsetLeft + laranja.offsetWidth / 2}px`;
+    emoji.style.top = `${laranja.offsetTop + laranja.offsetHeight / 2}px`;
+    emoji.style.setProperty('--x', `${offsetX}px`);
+    emoji.style.setProperty('--y', `${offsetY}px`);
+
+    document.body.appendChild(emoji);
+    setTimeout(() => emoji.remove(), 1000);
+  }
+});
+
 
     atualizarPainel();
   </script>
